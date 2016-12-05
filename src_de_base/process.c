@@ -81,6 +81,7 @@ void proc3(void) {
 /**
 *Quatrième partie de gestion des processus : politique d'ordonnancement
 */
+/*
 void idle(void) {
   for (;;) {
     printf("[%s] pid = %i\n", mon_nom(), mon_pid());
@@ -113,6 +114,39 @@ void proc3(void) {
     cli();
   }
 }
+*/
+
+/**
+*Cinquième partie de gestion des processus
+*/
+void idle() {
+  for (;;) {
+    sti();
+    hlt();
+    cli();
+  }
+}
+void proc1(void) {
+  for (;;) {
+    printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),
+    mon_nom(), mon_pid());
+    dors(2);
+  }
+}
+void proc2(void) {
+  for (;;) {
+    printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),
+    mon_nom(), mon_pid());
+    dors(3);
+  }
+}
+void proc3(void) {
+  for (;;) {
+    printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),
+    mon_nom(), mon_pid());
+    dors(5);
+  }
+}
 /**
 *fonction pour créer et initialiser les processus
 */
@@ -132,6 +166,19 @@ int32_t cree_processus(void (*code)(void), char *nom) {
       pid_a_creer++;
       return pid_a_creer;
   }
+}
+/**
+*fonction pour endormir le processus appelant pdt nbr_secs
+*/
+void dors(uint32_t nbr_secs) {
+  tab[pid_actif].temps_reveil = nbr_secondes() + nbr_secs;
+  tab[pid_actif].etat = ENDORMI;
+  ordonnance();
+}
+
+void elir(uint32_t pid) {
+	tab[pid].etat = ELU;
+	pid_actif = pid;
 }
 /**
 *Fonction qui retourne le pid du processus en cours d'exécution
@@ -163,11 +210,30 @@ char *mon_nom(void) {
 *Implantation de la politique d'ordonnancement collaboratif
 */
 void ordonnance(void) {
-//  int32_t temps;
+  process temp;
   int32_t activable;
-  pid_actif = mon_pid();
+  int32_t new_process = 0;
+  //pid_actif = mon_pid();
   activable = (pid_actif + 1)%NB_PROC;
-  tab[pid_actif].etat = ACTIVABLE;
-  tab[(pid_actif + 1)%NB_PROC].etat = ELU;
-  ctx_sw(tab[pid_actif].contexte, tab[activable].contexte);
+  while(activable != pid_actif) {
+    temp = tab[activable];
+    activable = (activable + 1)%NB_PROC;
+    if(temp.etat == ENDORMI && temp.temps_reveil <= nbr_secondes()) {
+      temp.etat = ACTIVABLE;
+    }
+  }
+  // on prend le premier processus eligible
+	activable = (pid_actif + 1)%NB_PROC;
+	while(activable != pid_actif) {
+		temp = tab[activable];
+		activable = (activable + 1)%NB_PROC;
+
+		if(temp.etat == ACTIVABLE) {
+			new_process = (activable - 1)%NB_PROC;
+			break;
+		}
+	}
+	uint32_t old_process = pid_actif;
+	elir(new_process);
+  ctx_sw(tab[old_process].contexte, tab[new_process].contexte);
 }

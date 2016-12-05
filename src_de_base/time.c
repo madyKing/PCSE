@@ -17,6 +17,7 @@ static int hr;
 static int min;
 static int sec;
 static int iter;
+static uint32_t uptime = 0;
 static char clock_str[256];
 
 /**
@@ -44,6 +45,7 @@ void masque_IRQ(uint32_t num_IRQ, bool masque){
 void tic_PIT(void){
   outb(0x20,0x20); // acquittement de l'IT
   iter++;
+  uptime++;
   masque_IRQ(0,false);
   if (iter >= NB_ITER){
 
@@ -77,7 +79,9 @@ void init_traitant_IT(int32_t num_IT, void (*traitant)(void)){
     uint32_t * idt2 = (uint32_t *) (0x1000 |( 8*num_IT + 4));
     *idt2 = ((uint32_t)traitant & 0xFFFF0000) | (uint32_t) 0x8E00 ;
 }
-
+uint32_t nbr_secondes() {
+  return uptime;
+}
 /**
  * Initialiser l'horloge
  */

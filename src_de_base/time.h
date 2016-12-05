@@ -19,8 +19,12 @@ void ecrit_haut_droite (char *car);
 ***/
 void init_clock(void);
 
+/**
+*fonction pour retourner uptime
+*/
+uint32_t nbr_secondes();
 /***
-* Traitant de l'IT 32 qui affiche à l'écran le temps écoulé depuis le 
+* Traitant de l'IT 32 qui affiche à l'écran le temps écoulé depuis le
 démarrage du système
 ***/
 void tic_PIT(void);
