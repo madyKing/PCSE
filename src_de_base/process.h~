@@ -1,0 +1,41 @@
+#ifndef _PROCESS_H
+#define _PROCESS_H
+
+#include <time.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <inttypes.h>
+#include "segment.h"
+#include "cpu.h"
+#include "start.h"
+
+/**
+ *type enumeration pour les differents etats d'un processus
+ */
+typedef enum struct_etat{
+  ELU,
+  ACTIVABLE,
+  ENDORMI,
+} ETAT;
+/**
+ *definition de la structure de donnee d'un processus
+ */
+typedef struct struct_process {
+  int pid;
+  char nom[30];
+  ETAT etat;
+  uint32_t contexte[5];
+  uint32_t pile[512];
+} process;
+
+/**
+ *Processus par defaut : toujours actif
+ */
+void idle(void);
+/**
+ *Processus 1 : quelconque
+ */
+void proc1(void);
+
+#endif

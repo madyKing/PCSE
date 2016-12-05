@@ -1,0 +1,55 @@
+#include "cpu.h"
+#include <inttypes.h>
+#include <string.h>
+#include <stdio.h>
+#include "console.h"
+#include "time.h"
+#include "process.h"
+
+process tab[2];
+
+extern void traitant_IT_32(void) ;
+void kernel_start(void)
+{
+    /********************************************************
+     ******************Partie Ecran + Temps****************** 
+     ********************************************************/
+
+  //ecrit_car(1,0,car);
+    efface_ecran();  
+    init_traitant_IT(32, traitant_IT_32);  // On initialise le vecteur d'intr 32
+    printf("Bonjour \n");
+    init_clock();
+    //efface_ecran();
+  // console_putbytes("bonjour",8);
+    masque_IRQ(0, false); // On démasque l'IRQ0
+    sti();
+    
+    
+    
+    /********************************************************
+     ******************Partie Processus**********************  
+     ********************************************************/
+    /**
+     *Initialisations
+     */
+    tab[0].pid = 0;
+    strcpy(tab[0].nom,"idle");
+    tab[0].etat = ELU;
+
+    tab[1].pid = 1;
+    strcpy(tab[1].nom,"proc1");
+    tab[1].etat = ACTIVABLE;
+    tab[1].contexte[4] = tab[1].pile[511];
+    tab[1].pile[0] = (uint32_t)(proc1);
+    
+    *reg1 =(int)(tab[0].contexte[0]); 
+    //Demarrage du processus par defaut
+    idle();
+    // on ne doit jamais sortir de kernel_start
+    // while (1) {
+        // cette fonction arrete le processeur
+    //  hlt();
+    //}
+}
+
