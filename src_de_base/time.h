@@ -14,13 +14,17 @@ void masque_IRQ(uint32_t num_IRQ, bool masque);
 ***/
 void ecrit_haut_droite (char *car);
 
+/**
+*fonction qui retourne le nombre de secondes depuis le démarrage du systeme
+*/
+uint32_t nbr_secondes();
 /***
 * Initialiser l'horloge
 ***/
 void init_clock(void);
 
 /***
-* Traitant de l'IT 32 qui affiche à l'écran le temps écoulé depuis le 
+* Traitant de l'IT 32 qui affiche à l'écran le temps écoulé depuis le
 démarrage du système
 ***/
 void tic_PIT(void);

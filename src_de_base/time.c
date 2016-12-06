@@ -17,6 +17,7 @@ static int hr;
 static int min;
 static int sec;
 static int iter;
+static uint32_t uptime = 0; //mesure du temps écoulé dépuis le démarrage du systeme
 static char clock_str[256];
 
 /**
@@ -44,6 +45,7 @@ void masque_IRQ(uint32_t num_IRQ, bool masque){
 void tic_PIT(void){
   outb(0x20,0x20); // acquittement de l'IT
   iter++;
+  uptime++;
   masque_IRQ(0,false);
   if (iter >= NB_ITER){
 
@@ -64,6 +66,10 @@ void tic_PIT(void){
   }
   ecrit_haut_droite(clock_str);
   ordonnance();
+}
+
+uint32_t nbr_secondes() {
+  return uptime;
 }
 
 /**

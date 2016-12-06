@@ -81,6 +81,7 @@ void proc3(void) {
 /**
 *Quatrième partie de gestion des processus : politique d'ordonnancement
 */
+/*
 void idle(void) {
   for (;;) {
     printf("[%s] pid = %i\n", mon_nom(), mon_pid());
@@ -112,6 +113,47 @@ void proc3(void) {
     hlt();
     cli();
   }
+}
+*/
+/**
+*Cinquième partie gestion des processus
+*/
+void idle() {
+  for (;;) {
+    sti();
+    hlt();
+    cli();
+  }
+}
+void proc1(void) {
+  //for (;;) {
+  for (int32_t i = 0; i < 2; i++){
+    printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),
+    mon_nom(), mon_pid());
+    dors(2);
+  }
+  fin_processus();
+  //}
+}
+void proc2(void) {
+// for (;;) {
+for (int32_t i = 0; i < 2; i++){
+    printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),
+    mon_nom(), mon_pid());
+    dors(3);
+}
+    fin_processus();
+//  }
+}
+void proc3(void) {
+  //for (;;) {
+  for (int32_t i = 0; i < 2; i++){
+    printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),
+    mon_nom(), mon_pid());
+    dors(5);
+  }
+    fin_processus();
+  //}
 }
 /**
 *fonction pour créer et initialiser les processus
@@ -158,16 +200,60 @@ char *mon_nom(void) {
   }
   return elu;
 }
-
+/**
+*fonction qui endors le processus appelant
+*/
+void dors(uint32_t nbr_secs) {
+  tab[pid_actif].temps_reveil = nbr_secs + nbr_secondes();
+  tab[pid_actif].etat = ENDORMI;
+  ordonnance();
+}
+/**
+*fonction qui termine un processus en le plaçant dans l'etat mort
+*/
+void fin_processus(void) {
+  tab[pid_actif].etat = MORT;
+  ordonnance();
+}
 /**
 *Implantation de la politique d'ordonnancement collaboratif
 */
 void ordonnance(void) {
-//  int32_t temps;
+  process temps;
+  int i;
   int32_t activable;
   pid_actif = mon_pid();
+  while(tab[pid_actif].etat == ENDORMI && tab[pid_actif].temps_reveil <= nbr_secondes()) {
+    i = (pid_actif + 1)%NB_PROC;
+    activable = (i + 1)%NB_PROC;
+    temps = tab[i];
+    temps.etat = ACTIVABLE;
+    tab[activable].etat = ELU;
+    ctx_sw(temps.contexte, tab[activable].contexte);
+    pid_actif = activable;
+  }
+  if(tab[pid_actif].etat == MORT) {
+    pid_actif = (pid_actif + 1)%NB_PROC;
+  }
   activable = (pid_actif + 1)%NB_PROC;
   tab[pid_actif].etat = ACTIVABLE;
   tab[(pid_actif + 1)%NB_PROC].etat = ELU;
   ctx_sw(tab[pid_actif].contexte, tab[activable].contexte);
+
+/*  for (i = 0; i < NB_PROC; i++) {
+    if (tab[i].etat == ENDORMI){
+      j = 0;
+      while(j <= tab[i].temps_reveil) {
+        j++;
+      }
+      tab[i].etat = ACTIVABLE;
+    }
+    else {
+      pid_actif = mon_pid();
+      activable = (pid_actif + 1)%NB_PROC;
+      tab[pid_actif].etat = ACTIVABLE;
+      tab[(pid_actif + 1)%NB_PROC].etat = ELU;
+      ctx_sw(tab[pid_actif].contexte, tab[activable].contexte);
+    }
+  }*/
 }
