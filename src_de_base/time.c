@@ -17,11 +17,7 @@ static int hr;
 static int min;
 static int sec;
 static int iter;
-<<<<<<< HEAD
 static uint32_t uptime = 0; //mesure du temps écoulé dépuis le démarrage du systeme
-=======
-static uint32_t uptime = 0;
->>>>>>> b87755b57f5be51455b983c817bc9680255f5eab
 static char clock_str[256];
 
 /**
