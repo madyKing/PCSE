@@ -23,6 +23,10 @@ uint32_t nbr_secondes();
 ***/
 void init_clock(void);
 
+/**
+*fonction pour retourner uptime
+*/
+uint32_t nbr_secondes();
 /***
 * Traitant de l'IT 32 qui affiche à l'écran le temps écoulé depuis le
 démarrage du système

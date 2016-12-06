@@ -17,7 +17,11 @@ static int hr;
 static int min;
 static int sec;
 static int iter;
+<<<<<<< HEAD
 static uint32_t uptime = 0; //mesure du temps écoulé dépuis le démarrage du systeme
+=======
+static uint32_t uptime = 0;
+>>>>>>> b87755b57f5be51455b983c817bc9680255f5eab
 static char clock_str[256];
 
 /**
@@ -83,7 +87,9 @@ void init_traitant_IT(int32_t num_IT, void (*traitant)(void)){
     uint32_t * idt2 = (uint32_t *) (0x1000 |( 8*num_IT + 4));
     *idt2 = ((uint32_t)traitant & 0xFFFF0000) | (uint32_t) 0x8E00 ;
 }
-
+uint32_t nbr_secondes() {
+  return uptime;
+}
 /**
  * Initialiser l'horloge
  */

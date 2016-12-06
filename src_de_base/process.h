@@ -33,6 +33,7 @@ typedef struct struct_process {
   char nom[30];
   uint32_t temps_reveil;
   ETAT etat;
+  uint32_t temps_reveil;
   uint32_t contexte[5];
   uint32_t pile[512];
 } process;
@@ -57,6 +58,11 @@ int32_t mon_pid(void);
 *Fonction qui retourne le nom du processus en cours d'exécution
 */
 char *mon_nom(void);
+/**
+*fonction pour endormir le processus appelant pdt nbr_secs
+*/
+void dors(uint32_t nbr_secs);
+void elir(uint32_t pid);
 /**
 *Implantation de la politique d'ordonnancemen collaboratif
 */
