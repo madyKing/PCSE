@@ -39,20 +39,12 @@ void kernel_start(void) {
     tab[0].pid = 0;
     strcpy(tab[0].nom,"idle");
     tab[0].etat = ELU;
-    /*
-    //initialisation de la tab des process de proc1()
-    tab[1].pid = 1;
-    strcpy(tab[1].nom,"proc1");
-    tab[1].etat = ACTIVABLE;
-    //la case de la zone de sauvegarde des registres (%esp)
-    //doit pointer sur le sommet de pile
-    tab[1].contexte[1] =(int)(&(tab[1].pile[511]));
-    //la case en sommet de pile doit contenir l’adresse de la fonction proc1
-    tab[1].pile[511] = (uint32_t)(proc1);
-    */
+    
     cree_processus(proc1, "proc1");
     cree_processus(proc2, "proc2");
     cree_processus(proc3, "proc3");
+    cree_processus(proc4, "proc4");
+    cree_processus(proc5, "proc5");
     //Demarrage du processus par defaut
     efface_ecran();
     init_traitant_IT(32, traitant_IT_32);

@@ -10,7 +10,7 @@
 #include "start.h"
 
 int32_t pid_actif = 0;
-int pid_a_creer = 0;
+int32_t pid_a_creer = 0;
 /**
 * Première partie de gestion des processus
 */
@@ -127,45 +127,75 @@ void idle() {
   }
 }
 void proc1(void) {
-  for (;;) {
+  //for (;;) {
+  for (int i = 0; i < 2; i++){
     printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),
     mon_nom(), mon_pid());
     dors(2);
   }
+  cree_processus(proc4,"proc4");
 }
 void proc2(void) {
-  for (;;) {
+  for (int i = 0; i < 4; i++){
     printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),
     mon_nom(), mon_pid());
     dors(3);
   }
+    cree_processus(proc5,"proc5");
 }
+
 void proc3(void) {
-  for (;;) {
+  for (int i = 0; i < 8; i++){
     printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),
     mon_nom(), mon_pid());
     dors(5);
   }
 }
+
+void proc4(void){
+    printf("processus cree par proc1 [%s] pid = %i\n", mon_nom(),mon_pid());
+    for(int i=0;i<2;i++){
+        printf("[temps = %u] processus [%s] pid = %i\n",nbr_secondes(),mon_nom(),mon_pid() );
+        dors(2);
+    }
+}
+
+void proc5(void){
+    printf("processus cree par proc2 [%s] pid = %i\n", mon_nom(),mon_pid());
+    for(int i=0;i<2;i++){
+        printf("[temps = %u] processus [%s] pid = %i\n",nbr_secondes(),mon_nom(),mon_pid() );
+        dors(2);
+    }
+}
 /**
 *fonction pour créer et initialiser les processus
 */
 int32_t cree_processus(void (*code)(void), char *nom) {
-  int i;
-  if(pid_a_creer == NB_PROC -1) {
-    return -1;
-  }
-  else {
-      i = pid_a_creer +1;
-      tab[i].pid = i;
-      strcpy(tab[i].nom,nom);
-      tab[i].etat = ACTIVABLE;
-      tab[i].contexte[1] =(int)(&(tab[i].pile[511]));
-      //la case en sommet de pile doit contenir l’adresse de la fonction proc1
-      tab[i].pile[511] = (uint32_t)(code);
-      pid_a_creer++;
-      return pid_a_creer;
-  }
+  int pid_mort = -1;
+    int i =0;
+    for(int j=0;j<NB_PROC;j++){
+        if(tab[j].etat == MORT){
+            pid_mort = j;
+        }
+    }
+
+    if (pid_a_creer == (NB_PROC -1) && pid_mort == -1) return -1;
+    else{
+        if(pid_mort == -1) i = pid_a_creer +1;
+        else i = pid_mort;
+
+        tab[i].pid = i;
+        tab[i].temps_reveil = 0;
+        strcpy(tab[i].nom,nom);
+        tab[i].etat = ACTIVABLE;
+
+        tab[i].contexte[1] = (int) &(tab[i].pile[510]);
+        tab[i].pile[511] = (int) fin_processus;
+        tab[i].pile[510] = (int) code;
+
+        pid_a_creer++;
+        return pid_a_creer;
+    }
 }
 /**
 *fonction pour endormir le processus appelant pdt nbr_secs
@@ -173,13 +203,19 @@ int32_t cree_processus(void (*code)(void), char *nom) {
 void dors(uint32_t nbr_secs) {
   tab[pid_actif].temps_reveil = nbr_secondes() + nbr_secs;
   tab[pid_actif].etat = ENDORMI;
-  ordonnance();
+  sti();
+  hlt();
+  cli();
+}
+/**
+*fonction qui termine un processus en le plaçant dans l'etat mort
+*/
+void fin_processus(void) {
+  tab[pid_actif].etat = MORT;
+  sti();
+  hlt();
 }
 
-void elir(uint32_t pid) {
-	tab[pid].etat = ELU;
-	pid_actif = pid;
-}
 /**
 *Fonction qui retourne le pid du processus en cours d'exécution
 */
@@ -210,30 +246,40 @@ char *mon_nom(void) {
 *Implantation de la politique d'ordonnancement collaboratif
 */
 void ordonnance(void) {
-  process temp;
-  int32_t activable;
-  int32_t new_process = 0;
-  //pid_actif = mon_pid();
-  activable = (pid_actif + 1)%NB_PROC;
-  while(activable != pid_actif) {
-    temp = tab[activable];
-    activable = (activable + 1)%NB_PROC;
-    if(temp.etat == ENDORMI && temp.temps_reveil <= nbr_secondes()) {
-      temp.etat = ACTIVABLE;
-    }
+  //process temps;
+  int32_t new_proc = mon_pid();
+  
+  if(tab[new_proc].etat == ELU) {
+    tab[new_proc].etat = ACTIVABLE;
   }
-  // on prend le premier processus eligible
-	activable = (pid_actif + 1)%NB_PROC;
-	while(activable != pid_actif) {
-		temp = tab[activable];
-		activable = (activable + 1)%NB_PROC;
-
-		if(temp.etat == ACTIVABLE) {
-			new_process = (activable - 1)%NB_PROC;
-			break;
-		}
-	}
-	uint32_t old_process = pid_actif;
-	elir(new_process);
-  ctx_sw(tab[old_process].contexte, tab[new_process].contexte);
+  pid_actif = (new_proc+1)%NB_PROC;
+  /*if(tab[pid_actif].etat == MORT) {
+    pid_actif = (pid_actif + 1)%NB_PROC;
+  }*/
+  
+  while (tab[pid_actif].etat == ENDORMI || tab[pid_actif].etat == MORT ) {
+        if(tab[pid_actif].etat == MORT || (tab[pid_actif].etat == ENDORMI && tab[pid_actif].temps_reveil > nbr_secondes())){
+            pid_actif=(pid_actif+1)%NB_PROC;
+        }
+        else if(tab[pid_actif].etat == ENDORMI && tab[pid_actif].temps_reveil <= nbr_secondes()){
+            tab[pid_actif].etat = ACTIVABLE;
+        }
+    }
+  tab[pid_actif].etat = ELU;
+  ctx_sw(tab[new_proc].contexte,tab[pid_actif].contexte);
+  /*
+  while(tab[pid_actif].etat == ENDORMI && tab[pid_actif].temps_reveil <= nbr_secondes()) {
+    i = (pid_actif + 1)%NB_PROC;
+    activable = (i + 1)%NB_PROC;
+    temps = tab[i];
+    temps.etat = ACTIVABLE;
+    tab[activable].etat = ELU;
+    ctx_sw(temps.contexte, tab[activable].contexte);
+    pid_actif = activable;
+  }
+  
+  activable = (pid_actif + 1)%NB_PROC;
+  tab[pid_actif].etat = ACTIVABLE;
+  tab[(pid_actif + 1)%NB_PROC].etat = ELU;
+ctx_sw(tab[pid_actif].contexte, tab[activable].contexte);*/
 }

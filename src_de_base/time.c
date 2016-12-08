@@ -27,7 +27,7 @@ void masque_IRQ(uint32_t num_IRQ, bool masque){
   uint8_t it = inb(0x21); // on récupère l'état des it
   uint8_t bitN = 0x01;
   uint8_t bitN2 ;
-  bitN = bitN << num_IRQ ; // on scrute l'état du bit num_IRQ
+  bitN = bitN << num_IRQ ; // on positionne le 1 sur le bit num_IRQ
   if(masque == true){/*Si l'on souhaite masquer l'IRQ */
     it = it | bitN;
   }
@@ -45,13 +45,13 @@ void masque_IRQ(uint32_t num_IRQ, bool masque){
 void tic_PIT(void){
   outb(0x20,0x20); // acquittement de l'IT
   iter++;
-  uptime++;
-  masque_IRQ(0,false);
-  if (iter >= NB_ITER){
 
-      sec++;
-      iter = 0;
-      if (sec >= 60){
+//  masque_IRQ(0,false);
+  if (iter >= NB_ITER){
+	 uptime++;
+     sec++;
+     iter = 0;
+     if (sec >= 60){
 	 min++;
 	 sec = 0;
 	 if (min >= 60){

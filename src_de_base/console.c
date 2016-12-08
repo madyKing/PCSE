@@ -40,17 +40,16 @@ void efface_ligne(uint32_t lig)
 
 void place_curseur(uint32_t lig, uint32_t col){
   uint16_t posi, pos;
-  //on actualise les positions du curseur
-  lig_curseur = lig;
-  col_curseur = col;
-
-
+ 
   pos = col + lig*80; //partie basse
   posi  = (col + lig*80) >> 8; //partie haute
   outb(0x0F,0x3D4);
   outb(pos,0x3D5);
   outb(0x0E,0x3D4);
   outb(posi,0x3D5);
+  //on actualise les positions du curseur
+  lig_curseur = lig;
+  col_curseur = col;
 }
 
 // fonction pour effacer les contenus des cases de la mémoire
@@ -124,7 +123,7 @@ void defilement(void)
 	}*/
   memmove(ptr_mem(0,0),ptr_mem(1,0),79 - 8);
   memmove(ptr_mem(1,0),ptr_mem(2,0),160*23);
-  efface_ligne((uint32_t) 24);
+  efface_ligne((uint32_t)24);
 }
 
 

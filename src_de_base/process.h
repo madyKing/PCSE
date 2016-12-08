@@ -11,7 +11,7 @@
 #include "start.h"
 #include "console.h"
 
-#define NB_PROC 4
+#define NB_PROC 5
 
 
 extern void ctx_sw(uint32_t*,uint32_t*);
@@ -23,6 +23,7 @@ typedef enum struct_etat{
   ELU,
   ACTIVABLE,
   ENDORMI,
+  MORT,
 } ETAT;
 /**
  *definition de la structure de donnee d'un processus
@@ -37,6 +38,7 @@ typedef struct struct_process {
 } process;
 
 process tab[NB_PROC];
+
 /**
  *Processus par defaut : toujours actif
  */
@@ -47,6 +49,8 @@ void idle(void);
 void proc1(void);
 void proc2(void);
 void proc3(void);
+void proc4(void);
+void proc5(void);
 
 /**
 *Fonction qui retourne le pid du processus en cours d'exécution
@@ -60,7 +64,10 @@ char *mon_nom(void);
 *fonction pour endormir le processus appelant pdt nbr_secs
 */
 void dors(uint32_t nbr_secs);
-void elir(uint32_t pid);
+/**
+*fonction qui termine un processus en le plaçant dans l'etat mort
+*/
+void fin_processus(void);
 /**
 *Implantation de la politique d'ordonnancemen collaboratif
 */
