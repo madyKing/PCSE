@@ -17,7 +17,7 @@ static int hr;
 static int min;
 static int sec;
 static int iter;
-static uint32_t uptime = 0;
+static uint32_t uptime = 0; //mesure du temps écoulé dépuis le démarrage du systeme
 static char clock_str[256];
 
 /**
@@ -66,6 +66,10 @@ void tic_PIT(void){
   }
   ecrit_haut_droite(clock_str);
   ordonnance();
+}
+
+uint32_t nbr_secondes() {
+  return uptime;
 }
 
 /**

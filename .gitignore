@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 # Object files
-*.o
+#*.o
 
 # emacs backup
-*~
+#*~
+
+>>>>>>> bdae8209a2f6342f02a5c0fa87e51c533fa26dc4

@@ -128,11 +128,16 @@ void idle() {
 }
 void proc1(void) {
   //for (;;) {
+<<<<<<< HEAD
   for (int i = 0; i < 2; i++){
+=======
+  for (int32_t i = 0; i < 3; i++){
+>>>>>>> bdae8209a2f6342f02a5c0fa87e51c533fa26dc4
     printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),
     mon_nom(), mon_pid());
     dors(2);
   }
+<<<<<<< HEAD
   cree_processus(proc4,"proc4");
 }
 void proc2(void) {
@@ -146,10 +151,31 @@ void proc2(void) {
 
 void proc3(void) {
   for (int i = 0; i < 8; i++){
+=======
+  fin_processus();
+  //}
+}
+void proc2(void) {
+// for (;;) {
+for (int32_t i = 0; i < 2; i++){
+    printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),
+    mon_nom(), mon_pid());
+    dors(3);
+}
+    fin_processus();
+//  }
+}
+
+void proc3(void) {
+//  for (;;) {
+  for (int32_t i = 0; i < 3; i++){
+>>>>>>> bdae8209a2f6342f02a5c0fa87e51c533fa26dc4
     printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),
     mon_nom(), mon_pid());
     dors(5);
   }
+    fin_processus();
+  //}
 }
 
 void proc4(void){
@@ -241,11 +267,26 @@ char *mon_nom(void) {
   }
   return elu;
 }
-
+/**
+*fonction qui endors le processus appelant
+*/
+void dors(uint32_t nbr_secs) {
+  tab[pid_actif].temps_reveil = nbr_secs + nbr_secondes();
+  tab[pid_actif].etat = ENDORMI;
+  ordonnance();
+}
+/**
+*fonction qui termine un processus en le plaçant dans l'etat mort
+*/
+void fin_processus(void) {
+  tab[pid_actif].etat = MORT;
+  ordonnance();
+}
 /**
 *Implantation de la politique d'ordonnancement collaboratif
 */
 void ordonnance(void) {
+<<<<<<< HEAD
   //process temps;
   int32_t new_proc = mon_pid();
   
@@ -268,6 +309,12 @@ void ordonnance(void) {
   tab[pid_actif].etat = ELU;
   ctx_sw(tab[new_proc].contexte,tab[pid_actif].contexte);
   /*
+=======
+  process temps;
+  int i;
+  int32_t activable;
+  pid_actif = mon_pid();
+>>>>>>> bdae8209a2f6342f02a5c0fa87e51c533fa26dc4
   while(tab[pid_actif].etat == ENDORMI && tab[pid_actif].temps_reveil <= nbr_secondes()) {
     i = (pid_actif + 1)%NB_PROC;
     activable = (i + 1)%NB_PROC;
@@ -276,10 +323,38 @@ void ordonnance(void) {
     tab[activable].etat = ELU;
     ctx_sw(temps.contexte, tab[activable].contexte);
     pid_actif = activable;
+<<<<<<< HEAD
   }
   
   activable = (pid_actif + 1)%NB_PROC;
   tab[pid_actif].etat = ACTIVABLE;
   tab[(pid_actif + 1)%NB_PROC].etat = ELU;
 ctx_sw(tab[pid_actif].contexte, tab[activable].contexte);*/
+=======
+  }
+  if(tab[pid_actif].etat == MORT) {
+    pid_actif = (pid_actif + 1)%NB_PROC;
+  }
+  activable = (pid_actif + 1)%NB_PROC;
+  tab[pid_actif].etat = ACTIVABLE;
+  tab[(pid_actif + 1)%NB_PROC].etat = ELU;
+  ctx_sw(tab[pid_actif].contexte, tab[activable].contexte);
+
+/*  for (i = 0; i < NB_PROC; i++) {
+    if (tab[i].etat == ENDORMI){
+      j = 0;
+      while(j <= tab[i].temps_reveil) {
+        j++;
+      }
+      tab[i].etat = ACTIVABLE;
+    }
+    else {
+      pid_actif = mon_pid();
+      activable = (pid_actif + 1)%NB_PROC;
+      tab[pid_actif].etat = ACTIVABLE;
+      tab[(pid_actif + 1)%NB_PROC].etat = ELU;
+      ctx_sw(tab[pid_actif].contexte, tab[activable].contexte);
+    }
+  }*/
+>>>>>>> bdae8209a2f6342f02a5c0fa87e51c533fa26dc4
 }
